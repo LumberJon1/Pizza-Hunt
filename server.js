@@ -12,7 +12,7 @@ app.use(require('./routes'));
 
 // Connect mongoose to either the MONGODB_URI variable or local server database
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/pizza-hunt", {
-    useNewURlParse: true,
+    useNewUrlParser: true,
     useUnifiedTopology: true
 });
 

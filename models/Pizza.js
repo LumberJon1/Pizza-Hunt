@@ -1,4 +1,4 @@
-const {schema, model} = require("mongoose");
+const {Schema, model} = require("mongoose");
 
 // Schema to structure the shape of pizza data
 const PizzaSchema = new Schema({
