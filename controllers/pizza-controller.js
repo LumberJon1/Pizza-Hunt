@@ -4,6 +4,16 @@ const pizzaController = {
     // Get all pizzas
     getAllPizza(req, res) {
         Pizza.find({})
+        // The .populate allows adding other models' data to the response
+        .populate({
+            path: "comments",
+            // The - in front of __v acts like an "exclude" from the response
+            select: "-__v"
+        })
+        // We also do the same to the actual pizza's __v value like the comment's above.
+        .select("-__v")
+        // Sort in descending order
+        .sort({_id: -1})
         .then(dbPizzaData => res.json(dbPizzaData))
         .catch(err => {
             console.log(err);
@@ -14,6 +24,11 @@ const pizzaController = {
     // Get one pizza by ID
     getPizzaByID({params}, res) {
         Pizza.findOne({_id: params.id})
+        .populate({
+            path: "comments",
+            select: "-__v"
+        })
+        .select("-__v")
         .then(dbPizzaData => {
             // Check whether the pizza exists in the database and send 404 if none exists
             if (!dbPizzaData) {
