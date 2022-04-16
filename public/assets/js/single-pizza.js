@@ -1,3 +1,4 @@
+
 const $backBtn = document.querySelector('#back-btn');
 const $pizzaName = document.querySelector('#pizza-name');
 const $createdBy = document.querySelector('#created-by');
@@ -8,6 +9,31 @@ const $commentSection = document.querySelector('#comment-section');
 const $newCommentForm = document.querySelector('#new-comment-form');
 
 let pizzaId;
+
+function getPizza() {
+// Get the pizza's ID
+const searchParams = new URLSearchParams(document.location.search.substring(1));
+const pizzaID = searchParams.get("id");
+
+// Get the pizza's info for that ID
+fetch(`/api/pizzas/${pizzaID}`)
+  // Package the response from database as JSON
+  .then(response => {
+    // Error validation
+    if (!response.ok) {
+      throw new Error({message: "Something went wrong"});
+    }
+    return response.json();
+  })
+  // Handle the display of the returned pizza data
+  .then(printPizza)
+  // Return to previous page on error
+  .catch(err => {
+    console.log(err);
+    alert("No pizza with this ID.  Returning to previous page.");
+    window.history.back();
+  });
+}
 
 function printPizza(pizzaData) {
   console.log(pizzaData);
@@ -25,6 +51,7 @@ function printPizza(pizzaData) {
     .join('');
 
   if (comments && comments.length) {
+    // Each comment the pizza has will be displayed in a card
     comments.forEach(printComment);
   } else {
     $commentSection.innerHTML = '<h4 class="bg-dark p-3 rounded">No comments yet!</h4>';
@@ -85,8 +112,31 @@ function handleNewCommentSubmit(event) {
   if (!commentBody || !writtenBy) {
     return false;
   }
-
   const formData = { commentBody, writtenBy };
+
+  // POST the data to the database under the api comment route
+  fetch(`/api/comments/${pizzaId}`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(formData)
+  })
+  .then(response => {
+    if (!response.ok) {
+      alert("Something went wrong.");
+      return;
+    }
+    response.json()
+  })
+  .then(commentResponse => {
+    console.log(commentResponse);
+    location.reload();
+  })
+  .catch(err => {
+    console.log(err);
+  });
 }
 
 function handleNewReplySubmit(event) {
@@ -114,3 +164,5 @@ $backBtn.addEventListener('click', function() {
 
 $newCommentForm.addEventListener('submit', handleNewCommentSubmit);
 $commentSection.addEventListener('submit', handleNewReplySubmit);
+
+getPizza();
