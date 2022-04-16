@@ -37,8 +37,8 @@ const PizzaSchema = new Schema({
 
 // Add virtual comment count
 PizzaSchema.virtual("commentCount").get(function() {
-    return this.comments.length;
-})
+    return this.comments.reduce((total, comment) => total + comment.replies.length + 1, 0);
+});
 
 // Create model from schema template
 const Pizza = model("Pizza", PizzaSchema);
